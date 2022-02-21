@@ -22,18 +22,14 @@ APlayerCar::APlayerCar()
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->SetUsingAbsoluteRotation(true);
-	SpringArm->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
+	SpringArm->SetRelativeRotation(FRotator(-30.f, 0.f, 0.f));
 	SpringArm->TargetArmLength = 1000.f;
 	SpringArm->bEnableCameraLag = false;
 	SpringArm->CameraLagSpeed = 5.f;
 
-	SpringArm->SetupAttachment(PlayerMesh);
+	SpringArm->SetupAttachment(RootComponent);
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
-	Camera->AddLocalOffset(FVector(0.f, 0.f, 0.f));
-	Camera->bUsePawnControlRotation = false;
-
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 
 }
