@@ -40,10 +40,10 @@ public:
 		UCameraComponent* Camera = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerMesh")
-		float Speed = 5.f;
+		float Acceleration = 0.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerMesh")
-		float ForwardSpeed = 1.f;
+		float MaxSpeed = 20.f;
 
 
 private:
@@ -55,8 +55,10 @@ private:
 
 	void XView(float Value);
 	void YView(float Value);
+	
+	void Nitro();
 
-	void Dash();
+	int TurnAmt = 3;
 
 	float XValue = 0.f;
 

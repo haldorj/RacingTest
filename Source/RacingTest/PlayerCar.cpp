@@ -68,10 +68,26 @@ void APlayerCar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// De-acceleration 
+	if (XValue > 0) {
+		XValue -= Acceleration / 8;
+	}
+	else if (XValue < 0) {
+		XValue += Acceleration / 8;
+	}
+
 	// 3D Car Movement
 	this->AddActorLocalOffset(FVector(XValue, 0.f, 0.f));
-
 	this->AddActorLocalRotation(FRotator(0, YaValue, 0));
+	
+	// Limit Springarm X-Rotation
+	if (YCamera <= -80) {
+		YCamera = -80;
+	}
+	if (YCamera >= 0) {
+		YCamera = 0;
+	}
+
 	SpringArm->SetRelativeRotation(FRotator(YCamera, XCamera, 0));
 }
 
@@ -89,25 +105,26 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAxis("XView", this, &APlayerCar::XView);
 	PlayerInputComponent->BindAxis("YView", this, &APlayerCar::YView);
 
-
-	PlayerInputComponent->BindAction("Dash", EInputEvent::IE_Pressed, this, &APlayerCar::Dash);
+	PlayerInputComponent->BindAction("Nitro", EInputEvent::IE_Pressed, this, &APlayerCar::Nitro);
 }
 
 //3D Car Movement
 void APlayerCar::Accelerate(float Value)
 {
-	if (XValue > ForwardSpeed) { XValue = ForwardSpeed; }
-	else if (XValue < -ForwardSpeed) { XValue = -ForwardSpeed; }
-	else { XValue += Value; }
+	
+	if (XValue > MaxSpeed) { XValue = MaxSpeed; }
+	else if (XValue < -MaxSpeed) { XValue = -MaxSpeed; }
+	else { XValue += Value * Acceleration; }
 }
 
+// Car Turning
 void APlayerCar::Yaw(float Value)
 {
 	if (XValue > 0) {
-		YaValue = Value;
+		YaValue = Value * TurnAmt;
 	}
 	else if (XValue < 0) {
-		YaValue = -Value;
+		YaValue = -Value * TurnAmt;
 	}
 }
 
@@ -123,7 +140,7 @@ void APlayerCar::YView(float Value)
 
 
 
-void APlayerCar::Dash()
+void APlayerCar::Nitro()
 {
 
 }
