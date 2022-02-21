@@ -53,13 +53,17 @@ private:
 	void Accelerate(float Value);
 	void Yaw(float Value);
 
+	void XView(float Value);
+	void YView(float Value);
+
 	void Dash();
 
 	float XValue = 0.f;
-	float YValue = 0.f;
-	float ZValue = 0.f;
 
 	float YaValue = 0.f;
+
+	float XCamera = 0.f;
+	float YCamera = 0.f;
 
 	float DashTimer = 0.f;
 };

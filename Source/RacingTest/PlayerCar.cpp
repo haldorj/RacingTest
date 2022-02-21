@@ -22,7 +22,7 @@ APlayerCar::APlayerCar()
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->SetUsingAbsoluteRotation(true);
-	SpringArm->SetRelativeRotation(FRotator(-30.f, 0.f, 0.f));
+	SpringArm->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
 	SpringArm->TargetArmLength = 1000.f;
 	SpringArm->bEnableCameraLag = false;
 	SpringArm->CameraLagSpeed = 5.f;
@@ -48,6 +48,9 @@ static void InitializeDefaultPawnInputBinding()
 
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("Yaw", EKeys::D, 1.f));
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("Yaw", EKeys::A, -1.f));
+	
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("XView", EKeys::MouseX));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("YView", EKeys::MouseY));
 
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("Dash", EKeys::E));
 	}
@@ -66,10 +69,10 @@ void APlayerCar::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// 3D Car Movement
-	this->AddActorLocalOffset(FVector(XValue, YValue, 0.f));
+	this->AddActorLocalOffset(FVector(XValue, 0.f, 0.f));
 
-	this->AddActorLocalRotation(FRotator(0.f, YaValue, 0.f));
-	SpringArm->AddLocalRotation(FRotator(0.f, YaValue, 0.f));
+	this->AddActorLocalRotation(FRotator(0, YaValue, 0));
+	SpringArm->SetRelativeRotation(FRotator(YCamera, XCamera, 0));
 }
 
 // Called to bind functionality to input
@@ -82,6 +85,10 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	// 3D Car Movement
 	PlayerInputComponent->BindAxis("Accelerate", this, &APlayerCar::Accelerate);
 	PlayerInputComponent->BindAxis("Yaw", this, &APlayerCar::Yaw);
+
+	PlayerInputComponent->BindAxis("XView", this, &APlayerCar::XView);
+	PlayerInputComponent->BindAxis("YView", this, &APlayerCar::YView);
+
 
 	PlayerInputComponent->BindAction("Dash", EInputEvent::IE_Pressed, this, &APlayerCar::Dash);
 }
@@ -96,8 +103,25 @@ void APlayerCar::Accelerate(float Value)
 
 void APlayerCar::Yaw(float Value)
 {
-	YaValue = Value;
+	if (XValue > 0) {
+		YaValue = Value;
+	}
+	else if (XValue < 0) {
+		YaValue = -Value;
+	}
 }
+
+void APlayerCar::XView(float Value)
+{
+	XCamera += Value;
+}
+
+void APlayerCar::YView(float Value)
+{
+	YCamera -= Value;
+}
+
+
 
 void APlayerCar::Dash()
 {
