@@ -42,6 +42,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "BulletVariables")
 		USoundBase* BulletFireSound = nullptr;
 
+	// For interacting with other classes / collision.
 	UFUNCTION()
 		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
 			int32 OtherbodyIndex, bool bFromSweep, const FHitResult& SweepResult);

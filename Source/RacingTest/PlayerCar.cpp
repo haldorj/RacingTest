@@ -73,10 +73,18 @@ void APlayerCar::Tick(float DeltaTime)
 
 	// De-acceleration 
 	if (XValue > 0) {
-		XValue -= Acceleration / 8;
+		XValue -= Acceleration / 2;
 	}
 	else if (XValue < 0) {
-		XValue += Acceleration / 8;
+		XValue += Acceleration / 2;
+	}
+
+	// De-acceleration Yaw
+	if (XValue > 0) {
+		YawValue -= Acceleration / 1.6;
+	}
+	else if (XValue < 0) {
+		YawValue += Acceleration / 1.6;
 	}
 
 	// 3D Car Movement

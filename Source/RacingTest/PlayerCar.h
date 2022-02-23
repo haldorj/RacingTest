@@ -49,10 +49,10 @@ public:
 		USoundBase* Reloading = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		float Acceleration = 0.5f;
+		float Acceleration = 0.2f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		float MaxSpeed = 10.f;
+		float MaxSpeed = 20.f;
 
 // For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
@@ -75,8 +75,8 @@ private:
 	void Reload();
 	void Nitro();
 
-	// how sharp the car turns
-	int TurnAmt = 1;
+	// how sharp the car turns (Multiplier)
+	int TurnAmt = 2;
 
 	float XValue = 0.f;
 	float YawValue = 0.f;
