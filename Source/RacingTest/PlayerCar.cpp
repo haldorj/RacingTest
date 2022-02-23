@@ -4,6 +4,7 @@
 #include "PlayerCar.h"
 #include "GameFramework/PlayerInput.h"
 #include "Components/InputComponent.h"
+#include "Bullet.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Components/BoxComponent.h"
@@ -52,7 +53,8 @@ static void InitializeDefaultPawnInputBinding()
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("XView", EKeys::MouseX));
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("YView", EKeys::MouseY));
 
-		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("Dash", EKeys::E));
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("Nitro", EKeys::E));
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("Shoot", EKeys::SpaceBar));
 	}
 }
 
@@ -106,6 +108,7 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAxis("YView", this, &APlayerCar::YView);
 
 	PlayerInputComponent->BindAction("Nitro", EInputEvent::IE_Pressed, this, &APlayerCar::Nitro);
+	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
 }
 
 //3D Car Movement
@@ -140,7 +143,32 @@ void APlayerCar::YView(float Value)
 
 
 
+void APlayerCar::Shoot()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		// "Shotgun"
+		// Subject to change
+
+		FVector Location = GetActorLocation();
+		FRotator Rotation = GetActorRotation();
+		World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, -8.f, 0.f));
+		World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, -4.f, 0.f));
+		World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 0.f, 0.f));
+		World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 4.f, 0.f));
+		World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 8.f, 0.f));
+		UGameplayStatics::PlaySound2D(World, ShootingSound, 1.f, 1.f, 0.f, 0);
+	}
+}
+
 void APlayerCar::Nitro()
+{
+
+}
+
+void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, 
+	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
 }

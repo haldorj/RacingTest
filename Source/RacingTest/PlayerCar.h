@@ -30,42 +30,60 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerMesh")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		UStaticMeshComponent* PlayerMesh = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerMesh")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		USpringArmComponent* SpringArm = { nullptr };
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerMesh")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		UCameraComponent* Camera = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerMesh")
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+		USoundBase* ShootingSound = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		float Acceleration = 0.5f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerMesh")
-		float MaxSpeed = 20.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+		float MaxSpeed = 10.f;
 
+// For spawning Bullets:
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
+	TSubclassOf<AActor> ActorToSpawn;
+//
 
 private:
 	FVector InitLocation = FVector::ZeroVector;
 
-	//3D Car Movement
+	// 3D Car Movement
 	void Accelerate(float Value);
 	void Yaw(float Value);
 
+	// Camera movement
 	void XView(float Value);
 	void YView(float Value);
 	
+	// Functions
+	void Shoot();
 	void Nitro();
 
-	int TurnAmt = 3;
+	// how sharp the car turns
+	int TurnAmt = 2.5;
 
 	float XValue = 0.f;
-
 	float YaValue = 0.f;
+	float CarFacingDirection;
 
 	float XCamera = 0.f;
 	float YCamera = 0.f;
 
-	float DashTimer = 0.f;
+	float NitroTimer = 0.f;
+
+	// For interacting with other classes / collision.
+
+	UFUNCTION()
+		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
+			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	friend class RacingTestGameModeBase;
 };
