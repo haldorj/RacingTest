@@ -40,7 +40,13 @@ public:
 		UCameraComponent* Camera = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
-		USoundBase* ShootingSound = nullptr;
+		USoundBase* Shooting = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+		USoundBase* OutOfAmmo = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+		USoundBase* Reloading = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		float Acceleration = 0.5f;
@@ -66,17 +72,20 @@ private:
 	
 	// Functions
 	void Shoot();
+	void Reload();
 	void Nitro();
 
 	// how sharp the car turns
-	int TurnAmt = 2.5;
+	int TurnAmt = 1;
 
 	float XValue = 0.f;
-	float YaValue = 0.f;
+	float YawValue = 0.f;
 	float CarFacingDirection;
 
 	float XCamera = 0.f;
 	float YCamera = 0.f;
+
+	int Ammo = 6;
 
 	float NitroTimer = 0.f;
 

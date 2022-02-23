@@ -55,6 +55,7 @@ static void InitializeDefaultPawnInputBinding()
 
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("Nitro", EKeys::E));
 		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("Shoot", EKeys::SpaceBar));
+		UPlayerInput::AddEngineDefinedActionMapping(FInputActionKeyMapping("Reload", EKeys::R));
 	}
 }
 
@@ -80,7 +81,7 @@ void APlayerCar::Tick(float DeltaTime)
 
 	// 3D Car Movement
 	this->AddActorLocalOffset(FVector(XValue, 0.f, 0.f));
-	this->AddActorLocalRotation(FRotator(0, YaValue, 0));
+	this->AddActorLocalRotation(FRotator(0, YawValue, 0));
 	
 	// Limit Springarm X-Rotation
 	if (YCamera <= -80) {
@@ -109,6 +110,7 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	PlayerInputComponent->BindAction("Nitro", EInputEvent::IE_Pressed, this, &APlayerCar::Nitro);
 	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
+	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
 }
 
 //3D Car Movement
@@ -124,10 +126,10 @@ void APlayerCar::Accelerate(float Value)
 void APlayerCar::Yaw(float Value)
 {
 	if (XValue > 0) {
-		YaValue = Value * TurnAmt;
+		YawValue = Value * TurnAmt;
 	}
 	else if (XValue < 0) {
-		YaValue = -Value * TurnAmt;
+		YawValue = -Value * TurnAmt;
 	}
 }
 
@@ -145,21 +147,48 @@ void APlayerCar::YView(float Value)
 
 void APlayerCar::Shoot()
 {
-	UWorld* World = GetWorld();
-	if (World)
+	Ammo--;
+	
+	if (Ammo > 0)
 	{
-		// "Shotgun"
-		// Subject to change
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo :  %d "), Ammo));
 
-		FVector Location = GetActorLocation();
-		FRotator Rotation = GetActorRotation();
-		World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, -8.f, 0.f));
-		World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, -4.f, 0.f));
-		World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 0.f, 0.f));
-		World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 4.f, 0.f));
-		World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 8.f, 0.f));
-		UGameplayStatics::PlaySound2D(World, ShootingSound, 1.f, 1.f, 0.f, 0);
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			// "Shotgun"
+			// Subject to change
+
+			FVector Location = GetActorLocation();
+			FRotator Rotation = GetActorRotation();
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, -8.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, -4.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 0.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 4.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 8.f, 0.f));
+			UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
+		}
 	}
+
+	if (Ammo <= 0)
+	{
+		Ammo = 0;
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("No ammo Reload %d "), Ammo));
+			UGameplayStatics::PlaySound2D(World, OutOfAmmo, 1.f, 1.f, 0.f, 0);
+		}
+	}
+
+		UE_LOG(LogTemp, Warning, TEXT("Shooting"));
+}
+
+void APlayerCar::Reload() {
+	Ammo = 6;
+	UWorld* NewWorld = GetWorld();
+	UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Reloaded %d "), Ammo));
 }
 
 void APlayerCar::Nitro()
