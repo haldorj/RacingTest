@@ -2,7 +2,6 @@
 
 
 #include "Bullet.h"
-// #include "Enemy.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"

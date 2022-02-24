@@ -52,7 +52,7 @@ public:
 		float Acceleration = 0.2f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		float MaxSpeed = 20.f;
+		float MaxSpeed = 12.f;
 
 // For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));

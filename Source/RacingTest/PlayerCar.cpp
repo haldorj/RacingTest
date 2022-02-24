@@ -79,14 +79,6 @@ void APlayerCar::Tick(float DeltaTime)
 		XValue += Acceleration / 2;
 	}
 
-	// De-acceleration Yaw
-	if (XValue > 0) {
-		YawValue -= Acceleration / 1.6;
-	}
-	else if (XValue < 0) {
-		YawValue += Acceleration / 1.6;
-	}
-
 	// 3D Car Movement
 	this->AddActorLocalOffset(FVector(XValue, 0.f, 0.f));
 	this->AddActorLocalRotation(FRotator(0, YawValue, 0));
