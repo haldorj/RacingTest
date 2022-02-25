@@ -57,6 +57,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		float MaxSpeed = 12.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+		int Ammo = 6;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+		int HP = 100;
+
+
 // For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> ActorToSpawn;
@@ -87,8 +94,6 @@ private:
 
 	float XCamera = 0.f;
 	float YCamera = 0.f;
-
-	int Ammo = 6;
 
 	float NitroTimer = 0.f;
 
