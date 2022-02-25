@@ -5,6 +5,7 @@
 #include "GameFramework/PlayerInput.h"
 #include "Components/InputComponent.h"
 #include "Bullet.h"
+#include "Coin.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Components/BoxComponent.h"
@@ -17,13 +18,19 @@ APlayerCar::APlayerCar()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider"));
+	CollisionBox->SetGenerateOverlapEvents(true);
+	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &APlayerCar::OnOverlap);
+	SetRootComponent(CollisionBox);
+
 	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlayerMesh"));
-	SetRootComponent(PlayerMesh);
+	PlayerMesh->SetupAttachment(RootComponent);
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->SetUsingAbsoluteRotation(true);
-	SpringArm->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
+	SpringArm->SetRelativeRotation(FRotator(-30.f, 0.f, 0.f));
 	SpringArm->TargetArmLength = 1000.f;
 	SpringArm->bEnableCameraLag = false;
 	SpringArm->CameraLagSpeed = 5.f;
@@ -32,7 +39,6 @@ APlayerCar::APlayerCar()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
-
 }
 
 static void InitializeDefaultPawnInputBinding()
@@ -84,11 +90,11 @@ void APlayerCar::Tick(float DeltaTime)
 	this->AddActorLocalRotation(FRotator(0, YawValue, 0));
 	
 	// Limit Springarm X-Rotation
-	if (YCamera <= -80) {
-		YCamera = -80;
+	if (YCamera <= -70) {
+		YCamera = -70;
 	}
-	if (YCamera >= 0) {
-		YCamera = 0;
+	if (YCamera >= -1) {
+		YCamera = -1;
 	}
 
 	SpringArm->SetRelativeRotation(FRotator(YCamera, XCamera, 0));
@@ -161,11 +167,11 @@ void APlayerCar::Shoot()
 
 			FVector Location = GetActorLocation();
 			FRotator Rotation = GetActorRotation();
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, -8.f, 0.f));
 			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, -4.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, -2.f, 0.f));
 			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 0.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 2.f, 0.f));
 			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 4.f, 0.f));
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 8.f, 0.f));
 			UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
 		}
 	}
@@ -199,5 +205,10 @@ void APlayerCar::Nitro()
 void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, 
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-
+	if (OtherActor->IsA(ACoin::StaticClass()))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("Player Picked Up Coin"), Ammo));
+		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Coin"))
+			OtherActor->Destroy();
+	}
 }

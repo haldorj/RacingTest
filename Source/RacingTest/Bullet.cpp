@@ -40,21 +40,7 @@ void ABullet::Tick(float DeltaTime)
 }
 
 void ABullet::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
-	int32 OtherbodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
+	int32 OtherbodyIndex, bool bFromSweep, const FHitResult& SweepResult) 
+{
 
-	//UE_LOG(LogTemp, Warning, TEXT(" Overlapped"));
-	//// if it hits enemy destroy enemy and this actor 
-	//if (OtherActor->IsA(AEnemy::StaticClass()))
-	//{
-	//	Cast<AEnemy>(OtherActor)->EnemyHit(); //OtherActor->Destroy();
-
-	//	//ParticleFX:
-	//	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletFireFX, GetTransform(), true);
-
-	//	//SoundFX
-	//	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BulletFireSound, GetActorLocation());
-
-	//	//Destroy Bullet:
-	//	Destroy();
-	//}
 }

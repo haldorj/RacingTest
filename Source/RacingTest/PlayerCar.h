@@ -30,11 +30,14 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
+	UPROPERTY(VisibleAnywhere)
+		UShapeComponent* CollisionBox = nullptr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		UStaticMeshComponent* PlayerMesh = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		USpringArmComponent* SpringArm = { nullptr };
+		USpringArmComponent* SpringArm = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		UCameraComponent* Camera = nullptr;
@@ -90,9 +93,8 @@ private:
 	float NitroTimer = 0.f;
 
 	// For interacting with other classes / collision.
-
 	UFUNCTION()
-		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
-			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	friend class RacingTestGameModeBase;
+	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep,
+			const FHitResult& SweepResult);
 };
