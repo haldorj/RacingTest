@@ -33,8 +33,5 @@ void ACoin::Tick(float DeltaTime)
 void ACoin::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) 
 {
-	//if ((OtherActor != nullptr ) && (OtherComponent != nullptr))
-	//{
-	//	this->Destroy();
-	//}
+
 }

@@ -18,14 +18,14 @@ AEnemyAI::AEnemyAI()
 	// "Sensing sphere" to detect player.
 	EnemySensingSphere = CreateDefaultSubobject<USphereComponent>(TEXT("EnemySensingSphere"));
 	EnemySensingSphere->SetupAttachment(GetRootComponent());
-	EnemySensingSphere->InitSphereRadius(1000.f);
+	EnemySensingSphere->InitSphereRadius(1500.f);
 
 	// Mesh
 	EnemyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("EnemyMesh"));
 	EnemyMesh->SetupAttachment(RootComponent);
 
 	//Sets value in MovementComponent:
-	GetCharacterMovement()->MaxWalkSpeed = 200.f;
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 
 }
 
@@ -61,7 +61,7 @@ void AEnemyAI::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Other
 		UE_LOG(LogTemp, Warning, TEXT("Player Overlaps"));
 		AIController->SetFocus(Player);		//This makes the NPC to rotate towards the player at all times
 		//Easy way to see if it works:
-		AIController->MoveToActor(Player, 0);
+		AIController->MoveToActor(Player, 50);
 
 		//or More elaborate way, but gives us more insight:
 		//MoveToTarget(Player);

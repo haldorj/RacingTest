@@ -6,6 +6,7 @@
 #include "Components/InputComponent.h"
 #include "Bullet.h"
 #include "Coin.h"
+#include "HealthPack.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Components/BoxComponent.h"
@@ -39,6 +40,12 @@ APlayerCar::APlayerCar()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+
+	Ammo = 6;
+	MaxAmmo = 6;
+	Health = 30.f;
+	MaxHealth = 100.f;
+	Coins = 0;
 }
 
 static void InitializeDefaultPawnInputBinding()
@@ -117,6 +124,10 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAction("Nitro", EInputEvent::IE_Pressed, this, &APlayerCar::Nitro);
 	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
+}
+
+void APlayerCar::Force()
+{
 }
 
 //3D Car Movement
@@ -210,5 +221,21 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("Player Picked Up Coin"), Ammo));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Coin"))
 			OtherActor->Destroy();
+		Coins++;
+	}
+	if (OtherActor->IsA(AHealthPack::StaticClass()))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health"), Ammo));
+		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health"))
+			OtherActor->Destroy();
+		Health += 20;
+		{
+			if (Health > MaxHealth)
+			{
+				Health = MaxHealth;
+			}
+		}
 	}
 }
+
+
