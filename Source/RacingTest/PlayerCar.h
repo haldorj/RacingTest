@@ -119,4 +119,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 	int32 Coins; // int32 = cross platform
 
+	// SwitchLevel
+	void SwitchLevel(FName LevelName);
+
 };

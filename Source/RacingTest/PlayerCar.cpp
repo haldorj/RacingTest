@@ -43,7 +43,7 @@ APlayerCar::APlayerCar()
 
 	Ammo = 6;
 	MaxAmmo = 6;
-	Health = 30.f;
+	Health = 25.f;
 	MaxHealth = 100.f;
 	Coins = 0;
 }
@@ -218,24 +218,38 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 {
 	if (OtherActor->IsA(ACoin::StaticClass()))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("Player Picked Up Coin"), Ammo));
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("Player Picked Up Coin")));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Coin"))
 			OtherActor->Destroy();
 		Coins++;
 	}
 	if (OtherActor->IsA(AHealthPack::StaticClass()))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health"), Ammo));
-		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health"))
-			OtherActor->Destroy();
 		Health += 20;
+
+		if (Health > MaxHealth)
 		{
-			if (Health > MaxHealth)
-			{
-				Health = MaxHealth;
-			}
+			Health = MaxHealth;
 		}
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f"), Health));
+		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health)
+			OtherActor->Destroy();
 	}
 }
 
+void APlayerCar::SwitchLevel(FName LevelName)
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		FString CurrentLevel = World->GetMapName();
+
+		FName CurrentLevelName(*CurrentLevel);
+		if (CurrentLevelName != LevelName)
+		{
+			UGameplayStatics::OpenLevel(World, LevelName);
+		}
+
+	}
+}
 
