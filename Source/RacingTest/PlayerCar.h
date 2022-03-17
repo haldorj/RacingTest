@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "PlayerCar.generated.h"
@@ -52,10 +53,10 @@ public:
 		USoundBase* Reloading = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		float Acceleration = 0.2f;
+		float MaxSpeed = 12.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		float MaxSpeed = 12.f;
+		float Acceleration = 0.2f;
 
 
 // For spawning Bullets:
@@ -70,8 +71,8 @@ private:
 	void Force();
 
 	// 3D Car Movement
-	void Accelerate(float Value);
-	void Yaw(float Value);
+	void Forward(float Value);
+	void Sideways(float Value);
 
 	// Camera movement
 	void XView(float Value);
@@ -85,7 +86,11 @@ private:
 	// how sharp the car turns (Multiplier)
 	int TurnAmt = 2;
 
+	float XSpeed = 0.f;
+	float YSpeed = 0.f;
 	float XValue = 0.f;
+	float YValue = 0.f;
+
 	float YawValue = 0.f;
 	float CarFacingDirection;
 
