@@ -4,12 +4,13 @@
 #include "PlayerCar.h"
 #include "GameFramework/PlayerInput.h"
 #include "Components/InputComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "Bullet.h"
 #include "Coin.h"
 #include "HealthPack.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
-#include "Components/BoxComponent.h"
 #include "Camera/CameraActor.h"
 #include "Engine/Engine.h"
 
@@ -57,11 +58,11 @@ static void InitializeDefaultPawnInputBinding()
 		bindingsAdded = true;
 
 		// 3D Car Movement
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("Accelerate", EKeys::W, 1.f));
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("Accelerate", EKeys::S, -1.f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("Forward", EKeys::W, 1.f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("Forward", EKeys::S, -1.f));
 
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("Yaw", EKeys::D, 1.f));
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("Yaw", EKeys::A, -1.f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("Sideways", EKeys::D, 1.f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("Sideways", EKeys::A, -1.f));
 	
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("XView", EKeys::MouseX));
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("YView", EKeys::MouseY));
@@ -83,18 +84,13 @@ void APlayerCar::BeginPlay()
 void APlayerCar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	// De-acceleration 
-	if (XValue > 0) {
-		XValue -= Acceleration / 2;
-	}
-	else if (XValue < 0) {
-		XValue += Acceleration / 2;
-	}
-
+	
 	// 3D Car Movement
-	this->AddActorLocalOffset(FVector(XValue, 0.f, 0.f));
-	this->AddActorLocalRotation(FRotator(0, YawValue, 0));
+	XValue += XSpeed;
+	YValue += YSpeed;
+
+	this->SetActorLocation(FVector(XValue, YValue, 150.f));
+	this->SetActorRelativeRotation(FRotator(0, YawValue, 0));
 	
 	// Limit Springarm X-Rotation
 	if (YCamera <= -70) {
@@ -105,6 +101,33 @@ void APlayerCar::Tick(float DeltaTime)
 	}
 
 	SpringArm->SetRelativeRotation(FRotator(YCamera, XCamera, 0));
+
+	// De-acceleration 
+	float YawRad = YawValue * (PI / 180);
+
+	////De-Acceleration
+	//if (XSpeed > 0) { 
+	//	XSpeed -= Acceleration / 2;
+	//}
+	//else if (XSpeed < 0) { 
+	//	XSpeed += Acceleration / 2;
+	//}
+	//if (YSpeed > 0) { 
+	//	YSpeed -= Acceleration / 2;
+	//}
+	//else if (YSpeed < 0) {
+	//	YSpeed += Acceleration / 2;
+	//}
+
+	// Movement Info
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("---------------------------------")));
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("XSpeed :  %d "), static_cast<int>(XSpeed)));
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("YSpeed :  %d "), static_cast<int>(YSpeed)));
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("YawValue :  %d "), static_cast<int>(YawValue)));
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("YawRad :  %d "), static_cast<int>(YawRad)));
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("XValue :  %d "), static_cast<int>(XValue)));
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("YValue :  %d "), static_cast<int>(YValue)));
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("---------------------------------")));
 }
 
 // Called to bind functionality to input
@@ -115,8 +138,8 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	InitializeDefaultPawnInputBinding();
 
 	// 3D Car Movement
-	PlayerInputComponent->BindAxis("Accelerate", this, &APlayerCar::Accelerate);
-	PlayerInputComponent->BindAxis("Yaw", this, &APlayerCar::Yaw);
+	PlayerInputComponent->BindAxis("Forward", this, &APlayerCar::Forward);
+	PlayerInputComponent->BindAxis("Sideways", this, &APlayerCar::Sideways);
 
 	PlayerInputComponent->BindAxis("XView", this, &APlayerCar::XView);
 	PlayerInputComponent->BindAxis("YView", this, &APlayerCar::YView);
@@ -128,31 +151,54 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void APlayerCar::Force()
 {
+
 }
+
+//XValue += (XSpeed * cos(YawRad) - YSpeed * sin(YawRad));
+//YValue += (YSpeed * cos(YawRad) + XSpeed * sin(YawRad));
 
 //3D Car Movement
-void APlayerCar::Accelerate(float Value)
+void APlayerCar::Forward(float Value)
 {
-	
-	if (XValue > MaxSpeed) { XValue = MaxSpeed; }
-	else if (XValue < -MaxSpeed) { XValue = -MaxSpeed; }
-	else { XValue += Value * Acceleration; }
+	float YawRad = YawValue * (PI / 180);
+
+	if (XSpeed > MaxSpeed) { XSpeed = MaxSpeed; }
+	else if (XSpeed < -MaxSpeed) { XSpeed = -MaxSpeed; }
+	else { XSpeed += (Acceleration * Value) * cos(YawRad); }
+
+	if (YSpeed > MaxSpeed) { YSpeed = MaxSpeed; }
+	else if (YSpeed < -MaxSpeed) { YSpeed = -MaxSpeed; }
+	else { YSpeed += (Acceleration * Value) * sin(YawRad); }
 }
 
-// Car Turning
-void APlayerCar::Yaw(float Value)
+void APlayerCar::Sideways(float Value) 
 {
-	if (XValue > 0) {
-		YawValue = Value * TurnAmt;
-	}
-	else if (XValue < 0) {
-		YawValue = -Value * TurnAmt;
-	}
+	float YawRad = YawValue * (PI / 180);
+
+	if (YSpeed > MaxSpeed) { YSpeed = MaxSpeed; }
+	else if (YSpeed < -MaxSpeed) { YSpeed = -MaxSpeed; }
+	else { YSpeed += (Acceleration * Value) * cos(YawRad); }
+
+	if (XSpeed > MaxSpeed) { XSpeed = MaxSpeed; }
+	else if (XSpeed < -MaxSpeed) { XSpeed = -MaxSpeed; }
+	else { XSpeed += (Acceleration * Value) * -sin(YawRad); }
 }
+
+//// Car Turning
+//void APlayerCar::Yaw(float Value)
+//{
+//	if (XValue > 0) {
+//		YawValue = Value * TurnAmt;
+//	}
+//	else if (XValue < 0) {
+//		YawValue = -Value * TurnAmt;
+//	}
+//}
 
 void APlayerCar::XView(float Value)
 {
-	XCamera += Value;
+	XCamera += Value * TurnAmt;
+	YawValue += Value * TurnAmt;
 }
 
 void APlayerCar::YView(float Value)
@@ -160,12 +206,8 @@ void APlayerCar::YView(float Value)
 	YCamera -= Value;
 }
 
-
-
 void APlayerCar::Shoot()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Shooting"));
-	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo :  %d "), Ammo));
+{	
 	if (Ammo > 0)
 	{
 		UWorld* World = GetWorld();
@@ -185,6 +227,9 @@ void APlayerCar::Shoot()
 		}
 	}
 
+	Ammo--;
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo :  %d "), Ammo));
+
 	if (Ammo <= 0)
 	{
 		Ammo = 0;
@@ -196,8 +241,7 @@ void APlayerCar::Shoot()
 		}
 	}
 
-	Ammo--;
-
+	UE_LOG(LogTemp, Warning, TEXT("Shooting"));
 }
 
 void APlayerCar::Reload() {
@@ -217,7 +261,7 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 {
 	if (OtherActor->IsA(ACoin::StaticClass()))
 	{
-		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("Player Picked Up Coin")));
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("Player Picked Up Coin")));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Coin"))
 			OtherActor->Destroy();
 		Coins++;
@@ -230,7 +274,7 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		{
 			Health = MaxHealth;
 		}
-		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f"), Health));
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f"), Health));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health)
 			OtherActor->Destroy();
 	}
