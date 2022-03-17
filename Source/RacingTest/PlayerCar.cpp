@@ -164,12 +164,10 @@ void APlayerCar::YView(float Value)
 
 void APlayerCar::Shoot()
 {
-	Ammo--;
-	
+	UE_LOG(LogTemp, Warning, TEXT("Shooting"));
+	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo :  %d "), Ammo));
 	if (Ammo > 0)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo :  %d "), Ammo));
-
 		UWorld* World = GetWorld();
 		if (World)
 		{
@@ -198,7 +196,8 @@ void APlayerCar::Shoot()
 		}
 	}
 
-		UE_LOG(LogTemp, Warning, TEXT("Shooting"));
+	Ammo--;
+
 }
 
 void APlayerCar::Reload() {
@@ -218,7 +217,7 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 {
 	if (OtherActor->IsA(ACoin::StaticClass()))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("Player Picked Up Coin")));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("Player Picked Up Coin")));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Coin"))
 			OtherActor->Destroy();
 		Coins++;
@@ -231,7 +230,7 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		{
 			Health = MaxHealth;
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f"), Health));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f"), Health));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health)
 			OtherActor->Destroy();
 	}
