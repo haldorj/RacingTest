@@ -21,13 +21,13 @@ APlayerCar::APlayerCar()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlayerMesh"));
+	SetRootComponent(PlayerMesh);
+
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider"));
 	CollisionBox->SetGenerateOverlapEvents(true);
 	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &APlayerCar::OnOverlap);
-	SetRootComponent(CollisionBox);
-
-	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlayerMesh"));
-	PlayerMesh->SetupAttachment(RootComponent);
+	CollisionBox->SetupAttachment(RootComponent);
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArm->bDoCollisionTest = false;
@@ -86,11 +86,9 @@ void APlayerCar::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	// 3D Car Movement
-	XValue += XSpeed;
-	YValue += YSpeed;
-
-	this->SetActorLocation(FVector(XValue, YValue, 150.f));
 	this->SetActorRelativeRotation(FRotator(0, YawValue, 0));
+
+	//this->SetActorLocation(FVector(XValue, YValue, 150.f));
 	
 	// Limit Springarm X-Rotation
 	if (YCamera <= -70) {
@@ -101,23 +99,6 @@ void APlayerCar::Tick(float DeltaTime)
 	}
 
 	SpringArm->SetRelativeRotation(FRotator(YCamera, XCamera, 0));
-
-	// De-acceleration 
-	float YawRad = YawValue * (PI / 180);
-
-	////De-Acceleration
-	//if (XSpeed > 0) { 
-	//	XSpeed -= Acceleration / 2;
-	//}
-	//else if (XSpeed < 0) { 
-	//	XSpeed += Acceleration / 2;
-	//}
-	//if (YSpeed > 0) { 
-	//	YSpeed -= Acceleration / 2;
-	//}
-	//else if (YSpeed < 0) {
-	//	YSpeed += Acceleration / 2;
-	//}
 
 	// Movement Info
 	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("---------------------------------")));
@@ -154,34 +135,52 @@ void APlayerCar::Force()
 
 }
 
-//XValue += (XSpeed * cos(YawRad) - YSpeed * sin(YawRad));
-//YValue += (YSpeed * cos(YawRad) + XSpeed * sin(YawRad));
-
-//3D Car Movement
+//3D Hover"Car" Movement
 void APlayerCar::Forward(float Value)
 {
-	float YawRad = YawValue * (PI / 180);
+	YawRad = YawValue * (PI / 180);
+	XSpeed = (Acceleration * Value) * cos(YawRad);
+	YSpeed = (Acceleration * Value) * sin(YawRad);
 
-	if (XSpeed > MaxSpeed) { XSpeed = MaxSpeed; }
-	else if (XSpeed < -MaxSpeed) { XSpeed = -MaxSpeed; }
-	else { XSpeed += (Acceleration * Value) * cos(YawRad); }
-
-	if (YSpeed > MaxSpeed) { YSpeed = MaxSpeed; }
-	else if (YSpeed < -MaxSpeed) { YSpeed = -MaxSpeed; }
-	else { YSpeed += (Acceleration * Value) * sin(YawRad); }
+	if (XSpeed > MaxSpeed) {
+		XSpeed = MaxSpeed;
+	}	
+	else if (XSpeed < -MaxSpeed) {
+		XSpeed = -MaxSpeed;
+	}	
+	
+	if (YSpeed > MaxSpeed) {
+		YSpeed = MaxSpeed;
+	}	
+	else if (YSpeed < -MaxSpeed) {
+		YSpeed = -MaxSpeed;
+	}
+	
+	
+	PlayerMesh->AddImpulse(FVector(XSpeed, YSpeed, 0.f));
 }
 
 void APlayerCar::Sideways(float Value) 
 {
-	float YawRad = YawValue * (PI / 180);
+	YawRad = YawValue * (PI / 180);
+	XSpeed = (Acceleration * Value) * -sin(YawRad);
+	YSpeed = (Acceleration * Value) * cos(YawRad);
 
-	if (YSpeed > MaxSpeed) { YSpeed = MaxSpeed; }
-	else if (YSpeed < -MaxSpeed) { YSpeed = -MaxSpeed; }
-	else { YSpeed += (Acceleration * Value) * cos(YawRad); }
+	if (XSpeed > MaxSpeed) {
+		XSpeed = MaxSpeed;
+	}
+	else if (XSpeed < -MaxSpeed) {
+		XSpeed = -MaxSpeed;
+	}
 
-	if (XSpeed > MaxSpeed) { XSpeed = MaxSpeed; }
-	else if (XSpeed < -MaxSpeed) { XSpeed = -MaxSpeed; }
-	else { XSpeed += (Acceleration * Value) * -sin(YawRad); }
+	if (YSpeed > MaxSpeed) {
+		YSpeed = MaxSpeed;
+	}
+	else if (YSpeed < -MaxSpeed) {
+		YSpeed = -MaxSpeed;
+	}
+
+	PlayerMesh->AddImpulse(FVector(XSpeed, YSpeed, 0.f));
 }
 
 //// Car Turning
@@ -218,11 +217,13 @@ void APlayerCar::Shoot()
 
 			FVector Location = GetActorLocation();
 			FRotator Rotation = GetActorRotation();
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, -4.f, 0.f));
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, -2.f, 0.f));
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 0.f, 0.f));
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 2.f, 0.f));
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 4.f, 0.f));
+			float X = 140.f * cos(YawRad);
+			float Y = 140.f * sin(YawRad);
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(X, Y, 80.f), Rotation + FRotator(0.f, -4.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(X, Y, 80.f), Rotation + FRotator(0.f, -2.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(X, Y, 80.f), Rotation + FRotator(0.f, 0.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(X, Y, 80.f), Rotation + FRotator(0.f, 2.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(X, Y, 80.f), Rotation + FRotator(0.f, 4.f, 0.f));
 			UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
 		}
 	}
