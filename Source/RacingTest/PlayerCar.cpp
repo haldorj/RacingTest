@@ -2,13 +2,15 @@
 
 
 #include "PlayerCar.h"
+#include "Bullet.h"
+#include "Coin.h"
+#include "HealthPack.h"
+#include "EnemyAI.h"
+
 #include "GameFramework/PlayerInput.h"
 #include "Components/InputComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/PrimitiveComponent.h"
-#include "Bullet.h"
-#include "Coin.h"
-#include "HealthPack.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Camera/CameraActor.h"
@@ -21,13 +23,13 @@ APlayerCar::APlayerCar()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlayerMesh"));
+	SetRootComponent(PlayerMesh);
+
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider"));
 	CollisionBox->SetGenerateOverlapEvents(true);
 	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &APlayerCar::OnOverlap);
-	SetRootComponent(CollisionBox);
-
-	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlayerMesh"));
-	PlayerMesh->SetupAttachment(RootComponent);
+	CollisionBox->SetupAttachment(RootComponent);
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArm->bDoCollisionTest = false;
@@ -105,19 +107,19 @@ void APlayerCar::Tick(float DeltaTime)
 	// De-acceleration 
 	float YawRad = YawValue * (PI / 180);
 
-	////De-Acceleration
-	//if (XSpeed > 0) { 
-	//	XSpeed -= Acceleration / 2;
-	//}
-	//else if (XSpeed < 0) { 
-	//	XSpeed += Acceleration / 2;
-	//}
-	//if (YSpeed > 0) { 
-	//	YSpeed -= Acceleration / 2;
-	//}
-	//else if (YSpeed < 0) {
-	//	YSpeed += Acceleration / 2;
-	//}
+	//deceleration
+	if (XSpeed > 0) { 
+		XSpeed -= Acceleration / 4;
+	}
+	else if (XSpeed < 0) { 
+		XSpeed += Acceleration / 4;
+	}
+	if (YSpeed > 0) { 
+		YSpeed -= Acceleration / 4;
+	}
+	else if (YSpeed < 0) {
+		YSpeed += Acceleration / 4;
+	}
 
 	// Movement Info
 	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("---------------------------------")));
@@ -218,11 +220,11 @@ void APlayerCar::Shoot()
 
 			FVector Location = GetActorLocation();
 			FRotator Rotation = GetActorRotation();
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, -4.f, 0.f));
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, -2.f, 0.f));
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 0.f, 0.f));
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 2.f, 0.f));
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 80.f), Rotation + FRotator(0.f, 4.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 50.f), Rotation + FRotator(0.f, -4.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 50.f), Rotation + FRotator(0.f, -2.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 50.f), Rotation + FRotator(0.f, 0.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 50.f), Rotation + FRotator(0.f, 2.f, 0.f));
+			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(140.f, 0.f, 50.f), Rotation + FRotator(0.f, 4.f, 0.f));
 			UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
 		}
 	}
@@ -287,12 +289,10 @@ void APlayerCar::SwitchLevel(FName LevelName)
 	{
 		FString CurrentLevel = World->GetMapName();
 
-		FName CurrentLevelName(*CurrentLevel);
+		FName CurrentLevelName(*CurrentLevel);	// Operand converts FString to C-Style String.
 		if (CurrentLevelName != LevelName)
 		{
 			UGameplayStatics::OpenLevel(World, LevelName);
 		}
-
 	}
 }
-
