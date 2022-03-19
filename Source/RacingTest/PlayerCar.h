@@ -73,6 +73,7 @@ private:
 	// 3D Car Movement
 	void Forward(float Value);
 	void Sideways(float Value);
+	//void Yaw(float Value);
 
 	// Camera movement
 	void XView(float Value);
@@ -86,12 +87,14 @@ private:
 	// how sharp the car turns (Multiplier)
 	int TurnAmt = 2;
 
+	// The Car's Speed and Position
 	float XSpeed = 0.f;
 	float YSpeed = 0.f;
 	float XValue = 0.f;
 	float YValue = 0.f;
 
 	float YawValue = 0.f;
+	float YawRad = YawValue * (PI / 180);
 	float CarFacingDirection;
 
 	float XCamera = 0.f;
