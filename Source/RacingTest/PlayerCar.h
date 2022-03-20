@@ -52,55 +52,19 @@ public:
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
 		USoundBase* Reloading = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		float MaxSpeed = 12.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		float Acceleration = 0.2f;
-
-
 // For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> ActorToSpawn;
 //
 
 private:
-	FVector InitLocation = FVector::ZeroVector;
+	void MoveForward(float Value);
+	void MoveRight(float Value);
 
-	// Add Force
-	void Force();
-
-	// 3D Car Movement
-	void Forward(float Value);
-	void Sideways(float Value);
-	//void Yaw(float Value);
-
-	// Camera movement
-	void XView(float Value);
-	void YView(float Value);
-	
 	// Functions
 	void Shoot();
 	void Reload();
 	void Nitro();
-
-	// how sharp the car turns (Multiplier)
-	int TurnAmt = 2;
-
-	// The Car's Speed and Position
-	float XSpeed = 0.f;
-	float YSpeed = 0.f;
-	float XValue = 0.f;
-	float YValue = 0.f;
-
-	float YawValue = 0.f;
-	float YawRad = YawValue * (PI / 180);
-	float CarFacingDirection;
-
-	float XCamera = 0.f;
-	float YCamera = 0.f;
-
-	float NitroTimer = 0.f;
 
 	// For interacting with other classes / collision.
 	UFUNCTION()
@@ -127,7 +91,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 	int32 Coins; // int32 = cross platform
 
-	// SwitchLevel
+
+	// Function for switching level
 	void SwitchLevel(FName LevelName);
 
 };
