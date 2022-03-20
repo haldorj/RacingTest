@@ -64,7 +64,6 @@ void APlayerCar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
 }
 // Called to bind functionality to input
 void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -81,14 +80,14 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void APlayerCar::MoveForward(float Value)
 {
-	float Force = 500000.f;
+	float Force = 5000.f;
 	FVector ForwardForce = (GetActorForwardVector() * Force);
-	PlayerMesh->AddForce(ForwardForce * Value);
+	PlayerMesh->AddImpulse(ForwardForce * Value);
 }
 
 void APlayerCar::MoveRight(float Value)
 {
-	float Torque = 2500000.f;
+	float Torque = 3000000.f;
 	PlayerMesh->AddTorqueInRadians(FVector(0.f, 0.f, Torque * Value));
 }
 
@@ -96,6 +95,7 @@ void APlayerCar::Shoot()
 {	
 	if (Ammo > 0)
 	{
+		Ammo--;
 		UWorld* World = GetWorld();
 		if (World)
 		{
@@ -104,6 +104,7 @@ void APlayerCar::Shoot()
 
 			FVector Location = GetActorLocation();
 			FRotator Rotation = GetActorRotation();
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo :  %d "), Ammo));
 			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(0.f, 0.f, 80.f), Rotation + FRotator(0.f, -4.f, 0.f));
 			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(0.f, 0.f, 80.f), Rotation + FRotator(0.f, -2.f, 0.f));
 			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(0.f, 0.f, 80.f), Rotation + FRotator(0.f, 0.f, 0.f));
@@ -113,10 +114,7 @@ void APlayerCar::Shoot()
 		}
 	}
 
-	Ammo--;
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo :  %d "), Ammo));
-
-	if (Ammo <= 0)
+	else if (Ammo <= 0)
 	{
 		Ammo = 0;
 		UWorld* World = GetWorld();
@@ -160,7 +158,7 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		{
 			Health = MaxHealth;
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f"), Health));
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %d"), Health));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health)
 			OtherActor->Destroy();
 	}
@@ -178,7 +176,6 @@ void APlayerCar::SwitchLevel(FName LevelName)
 		{
 			UGameplayStatics::OpenLevel(World, LevelName);
 		}
-
 	}
 }
 
