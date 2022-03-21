@@ -20,6 +20,7 @@ UHoverComponent::UHoverComponent()
 
 	TraceLength = 100.f;
 	HoverForce = 35000.f;
+	Gravity = 9.81f;
 }
 
 
@@ -44,8 +45,8 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	CollisionParams.AddIgnoredActor(GetOwner());
 	CollisionParams.bTraceComplex = true;
 
-	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
-	{
+	bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
+	if (bHit) {
 		// Hit Information.
 		FVector SurfaceImpactNormal = OutHit.ImpactNormal;
 		FVector HitLocation = OutHit.Location;
@@ -70,6 +71,11 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		FVector Force = (CompressionRatio * SurfaceImpactNormal);
 		MeshComp->AddForceAtLocation(Force, GetComponentLocation());
 		//UE_LOG(LogTemp, Warning, TEXT("Force: X = %f, Force: Y = %f, Force: Z = %f"), Force.X, Force.Y, Force.Z);
+	}
+
+	else
+	{
+		MeshComp->AddForce(-GetUpVector() * (Gravity * 10000));
 	}
 
 	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, -1, 0, 3);

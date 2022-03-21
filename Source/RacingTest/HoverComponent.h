@@ -33,7 +33,7 @@ public:
 	UPROPERTY(Editanywhere, Category = "Hover")
 		float HoverForce;
 	UPROPERTY(Editanywhere, Category = "Hover")
-		float HoverDamping;
+		float Gravity;
 
 };
 
