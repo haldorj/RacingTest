@@ -96,11 +96,6 @@ void APlayerCar::MoveForward(float Value)
 	if (Value < 0) { Forwards = false; }
 	else if (Value > 0) { Forwards = true; }
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Forward x %f, y %f, z %f "), GetActorForwardVector().X, GetActorForwardVector().Y, GetActorForwardVector().Z));
-
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Linear %f "), PlayerMesh->GetLinearDamping()));
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Angular %f "), PlayerMesh->GetAngularDamping()));
-	
 }
 
 void APlayerCar::MoveRight(float Value)
@@ -110,7 +105,7 @@ void APlayerCar::MoveRight(float Value)
 	// Backwards steering functionality
 	float Select;
 	if (Forwards) { Select = 1; }
-	else { Select = -1; }
+	else if (!Forwards) { Select = -1; }
 	//float Product = FVector::DotProduct(PlayerMesh->GetPhysicsLinearVelocity(), GetActorForwardVector());
 	//float Select = UKismetMathLibrary::SelectFloat(1, -1, Product > 0);
 	FVector TorqueVector = FVector(0.f, 0.f, Select * Torque);
