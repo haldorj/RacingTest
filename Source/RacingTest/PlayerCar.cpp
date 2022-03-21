@@ -12,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Camera/CameraActor.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Engine/Engine.h"
 
 
@@ -89,16 +90,25 @@ void APlayerCar::MoveForward(float Value)
 void APlayerCar::MoveRight(float Value)
 {
 	float Torque = 2500000.f;
-	PlayerMesh->AddTorqueInRadians(FVector(0.f, 0.f, Torque * Value));
+	
+	// Backwards steering functionality
+
+	float Product = FVector::DotProduct(PlayerMesh->GetPhysicsLinearVelocity(), GetActorForwardVector());
+	float Select = UKismetMathLibrary::SelectFloat(1, -1, Product > 0);
+	FVector TorqueVector = FVector(0.f, 0.f, Select * Torque);
+	
+	PlayerMesh->AddTorqueInRadians(TorqueVector * Value);
 }
 
 void APlayerCar::Shoot()
 {	
 	if (Ammo > 0)
 	{
+		
 		UWorld* World = GetWorld();
 		if (World)
 		{
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo :  %d "), Ammo));
 			// "Shotgun"
 			// Subject to change
 
@@ -113,9 +123,6 @@ void APlayerCar::Shoot()
 		}
 	}
 
-	Ammo--;
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo :  %d "), Ammo));
-
 	if (Ammo <= 0)
 	{
 		Ammo = 0;
@@ -126,7 +133,8 @@ void APlayerCar::Shoot()
 			UGameplayStatics::PlaySound2D(World, OutOfAmmo, 1.f, 1.f, 0.f, 0);
 		}
 	}
-
+	Ammo--;
+	
 	UE_LOG(LogTemp, Warning, TEXT("Shooting"));
 }
 
