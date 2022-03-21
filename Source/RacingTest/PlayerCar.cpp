@@ -87,16 +87,15 @@ void APlayerCar::MoveForward(float Value)
 {
 	float Force = 500000.f;
 	FVector ForwardForce = (GetActorForwardVector() * Force);
+
 	PlayerMesh->AddForce(ForwardForce * Value);
 
-	PlayerMesh->SetAngularDamping(3.f);
+	PlayerMesh->SetAngularDamping(5.f);
+	PlayerMesh->SetLinearDamping(3.f);
 
 	if (Value < 0) { Forwards = false; }
 	else { Forwards = true; }
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Linear %f "), PlayerMesh->GetLinearDamping()));
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Angular %f "), PlayerMesh->GetAngularDamping()));
-	
 }
 
 void APlayerCar::MoveRight(float Value)
@@ -107,8 +106,7 @@ void APlayerCar::MoveRight(float Value)
 	float Select;
 	if (Forwards) { Select = 1; }
 	else { Select = -1; }
-
-	float Product = FVector::DotProduct(PlayerMesh->GetPhysicsLinearVelocity(), GetActorForwardVector());
+	//float Product = FVector::DotProduct(PlayerMesh->GetPhysicsLinearVelocity(), GetActorForwardVector());
 	//float Select = UKismetMathLibrary::SelectFloat(1, -1, Product > 0);
 	FVector TorqueVector = FVector(0.f, 0.f, Select * Torque);
 	
