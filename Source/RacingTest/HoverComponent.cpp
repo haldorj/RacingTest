@@ -75,7 +75,7 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 	else
 	{
-		MeshComp->AddForce(-GetUpVector() * (Gravity * 10000));
+		MeshComp->AddForce(FVector(0.f,0.f,-1) * (Gravity * 10000));
 	}
 
 	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, -1, 0, 3);
