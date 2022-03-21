@@ -94,7 +94,7 @@ void APlayerCar::MoveForward(float Value)
 	PlayerMesh->SetLinearDamping(3.f);
 
 	if (Value < 0) { Forwards = false; }
-	else { Forwards = true; }
+	else if (Value > 0) { Forwards = true; }
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Forward x %f, y %f, z %f "), GetActorForwardVector().X, GetActorForwardVector().Y, GetActorForwardVector().Z));
 
