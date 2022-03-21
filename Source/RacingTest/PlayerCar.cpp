@@ -85,6 +85,13 @@ void APlayerCar::MoveForward(float Value)
 	float Force = 500000.f;
 	FVector ForwardForce = (GetActorForwardVector() * Force);
 	PlayerMesh->AddForce(ForwardForce * Value);
+
+	PlayerMesh->SetLinearDamping(3.f);
+	PlayerMesh->SetAngularDamping(5.f);
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Linear %f "), PlayerMesh->GetLinearDamping()));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Angular %f "), PlayerMesh->GetAngularDamping()));
+	
 }
 
 void APlayerCar::MoveRight(float Value)
@@ -123,6 +130,8 @@ void APlayerCar::Shoot()
 		}
 	}
 
+	Ammo--;
+
 	if (Ammo <= 0)
 	{
 		Ammo = 0;
@@ -133,7 +142,6 @@ void APlayerCar::Shoot()
 			UGameplayStatics::PlaySound2D(World, OutOfAmmo, 1.f, 1.f, 0.f, 0);
 		}
 	}
-	Ammo--;
 	
 	UE_LOG(LogTemp, Warning, TEXT("Shooting"));
 }
@@ -168,7 +176,7 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		{
 			Health = MaxHealth;
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f"), Health));
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f "), Health));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health)
 			OtherActor->Destroy();
 	}
