@@ -51,6 +51,7 @@ APlayerCar::APlayerCar()
 	Health = 25.f;
 	MaxHealth = 100.f;
 	Coins = 0;
+	Forwards = true;
 }
 
 // Called when the game starts or when spawned
@@ -67,6 +68,7 @@ void APlayerCar::Tick(float DeltaTime)
 
 
 }
+
 // Called to bind functionality to input
 void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -74,6 +76,7 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	InputComponent->BindAxis(TEXT("MoveForward"), this, &APlayerCar::MoveForward);
 	InputComponent->BindAxis(TEXT("MoveRight"), this, &APlayerCar::MoveRight);
+	InputComponent->BindAxis(TEXT("MoveCameraY"), this, &APlayerCar::MoveCameraY);
 
 	PlayerInputComponent->BindAction("Nitro", EInputEvent::IE_Pressed, this, &APlayerCar::Nitro);
 	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
@@ -86,8 +89,10 @@ void APlayerCar::MoveForward(float Value)
 	FVector ForwardForce = (GetActorForwardVector() * Force);
 	PlayerMesh->AddForce(ForwardForce * Value);
 
-	PlayerMesh->SetLinearDamping(3.f);
-	PlayerMesh->SetAngularDamping(5.f);
+	PlayerMesh->SetAngularDamping(3.f);
+
+	if (Value < 0) { Forwards = false; }
+	else { Forwards = true; }
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Linear %f "), PlayerMesh->GetLinearDamping()));
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Angular %f "), PlayerMesh->GetAngularDamping()));
@@ -99,12 +104,20 @@ void APlayerCar::MoveRight(float Value)
 	float Torque = 2500000.f;
 	
 	// Backwards steering functionality
+	float Select;
+	if (Forwards) { Select = 1; }
+	else { Select = -1; }
 
 	float Product = FVector::DotProduct(PlayerMesh->GetPhysicsLinearVelocity(), GetActorForwardVector());
-	float Select = UKismetMathLibrary::SelectFloat(1, -1, Product > 0);
+	//float Select = UKismetMathLibrary::SelectFloat(1, -1, Product > 0);
 	FVector TorqueVector = FVector(0.f, 0.f, Select * Torque);
 	
 	PlayerMesh->AddTorqueInRadians(TorqueVector * Value);
+}
+
+void APlayerCar::MoveCameraY(float Value) 
+{
+	SpringArm->AddRelativeRotation(FRotator(0.f, Value, 0.f));
 }
 
 void APlayerCar::Shoot()
@@ -115,6 +128,7 @@ void APlayerCar::Shoot()
 		UWorld* World = GetWorld();
 		if (World)
 		{
+			Ammo--;
 			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo :  %d "), Ammo));
 			// "Shotgun"
 			// Subject to change
@@ -130,9 +144,7 @@ void APlayerCar::Shoot()
 		}
 	}
 
-	Ammo--;
-
-	if (Ammo <= 0)
+	else if (Ammo <= 0)
 	{
 		Ammo = 0;
 		UWorld* World = GetWorld();
@@ -147,7 +159,7 @@ void APlayerCar::Shoot()
 }
 
 void APlayerCar::Reload() {
-	Ammo = 6;
+	Ammo = MaxAmmo;
 	UWorld* NewWorld = GetWorld();
 	UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Reloaded %d "), Ammo));
@@ -197,4 +209,3 @@ void APlayerCar::SwitchLevel(FName LevelName)
 
 	}
 }
-

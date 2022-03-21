@@ -60,6 +60,7 @@ public:
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+	void MoveCameraY(float Value);
 
 	// Functions
 	void Shoot();
@@ -72,6 +73,7 @@ private:
 		UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep,
 			const FHitResult& SweepResult);
 
+	bool Forwards;
 //
 //	Player Stats
 //
@@ -90,7 +92,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 	int32 Coins; // int32 = cross platform
-
 
 	// Function for switching level
 	void SwitchLevel(FName LevelName);
