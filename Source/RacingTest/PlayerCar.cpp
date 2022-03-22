@@ -52,6 +52,9 @@ APlayerCar::APlayerCar()
 	MaxHealth = 100.f;
 	Coins = 0;
 	Forwards = true;
+
+	AngularDamping = 5.0f;
+	LinearDamping = 3.0f;
 }
 
 // Called when the game starts or when spawned
@@ -78,7 +81,6 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	InputComponent->BindAxis(TEXT("MoveRight"), this, &APlayerCar::MoveRight);
 	InputComponent->BindAxis(TEXT("MoveCameraY"), this, &APlayerCar::MoveCameraY);
 
-	PlayerInputComponent->BindAction("Nitro", EInputEvent::IE_Pressed, this, &APlayerCar::Nitro);
 	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
 }
@@ -90,8 +92,8 @@ void APlayerCar::MoveForward(float Value)
 
 	PlayerMesh->AddForce(ForwardForce * Value);
 
-	PlayerMesh->SetAngularDamping(5.f);
-	PlayerMesh->SetLinearDamping(3.f);
+	PlayerMesh->SetAngularDamping(AngularDamping);
+	PlayerMesh->SetLinearDamping(LinearDamping);
 
 	if (Value < 0) { Forwards = false; }
 	else if (Value > 0) { Forwards = true; }
@@ -161,11 +163,6 @@ void APlayerCar::Reload() {
 	UWorld* NewWorld = GetWorld();
 	UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Reloaded %d "), Ammo));
-}
-
-void APlayerCar::Nitro()
-{
-
 }
 
 void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, 

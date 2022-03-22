@@ -88,12 +88,10 @@ void AEnemyAI::MoveToTarget(APlayerCar* APlayerCar)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Player Overlaps"));
 
-		//https://docs.unrealengine.com/en-US/API/Runtime/AIModule/FAIMoveRequest/index.html
 		FAIMoveRequest AIMoverequest;
 		AIMoverequest.SetGoalActor(APlayerCar);	//What to move towards
 		AIMoverequest.SetAcceptanceRadius(25.f);	//How close before stop
 
-		//https://docs.unrealengine.com/en-US/API/Runtime/Engine/AI/Navigation/FNavPathSharedPtr/index.html
 		FNavPathSharedPtr NavPath;	//Will contain all location nodes for the path
 
 		AIController->MoveTo(AIMoverequest, &NavPath);

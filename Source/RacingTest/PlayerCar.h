@@ -65,7 +65,6 @@ private:
 	// Functions
 	void Shoot();
 	void Reload();
-	void Nitro();
 
 	// For interacting with other classes / collision.
 	UFUNCTION()
@@ -77,7 +76,14 @@ private:
 //
 //	Player Stats
 //
+
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+	float AngularDamping;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+	float LinearDamping;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
 	int MaxAmmo;
 
